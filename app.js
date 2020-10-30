@@ -49,5 +49,5 @@ app.post('/api/auth/create', function(req, res) {
 let key = aws.uploadFile("./test.jpg", "testing").then((response) => aws.signUrl(response)).then((response) => console.log(response))
 
 app.listen(process.env.PORT, () => {
-  console.log(`Example app listening at http://localhost:${process.env.PORT}`)
+	console.log(`Example app listening at http://localhost:${process.env.PORT}`)
 })
