@@ -3,9 +3,10 @@ const app = express()
 const mongoose = require('mongoose')
 const passport = require('passport')
 require('dotenv').config()
-const User = require('./models/user');
+const UserRoutes = require('./route/user')
 const router = express.Router();
 const aws = require('./awshelper.js');
+const User = require('./models/user');
 
 mongoose.connect(process.env.MONGO, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
 const connection = mongoose.connection
@@ -34,20 +35,8 @@ app.get('/', (req, res) => {
   res.send("Hi!")
 })
 
-app.post('/api/auth/create', function(req, res) {
-	console.log(req.body)
-	Users=new User({email: req.body.email, username : req.body.username}); 
-	User.register(Users, req.body.password, function(err, user) { 
-		if (err) {
-			res.json({success:false, message:"Your account could not be saved. Error: ", err}) 
-		}else{
-			res.json({success: true, message: "Your account has been saved"}) 
-		}
-	});
-});
-
-let key = aws.uploadFile("./test.jpg", "testing").then((response) => aws.signUrl(response)).then((response) => console.log(response))
+app.use(UserRoutes.router);
 
 app.listen(process.env.PORT, () => {
-	console.log(`Example app listening at http://localhost:${process.env.PORT}`)
+	console.log(`API app listening at http://localhost:${process.env.PORT}`)
 })
