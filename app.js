@@ -2,8 +2,10 @@ const express = require('express')
 const app = express()
 const mongoose = require('mongoose')
 const passport = require('passport')
+const bodyparser = require('body-parser')
 require('dotenv').config()
 const UserRoutes = require('./route/user')
+const DataRoutes = require('./route/dataUpload')
 const router = express.Router();
 const aws = require('./awshelper.js');
 const User = require('./models/user');
@@ -16,7 +18,10 @@ connection.once('open', () => {
 
 app.use(passport.initialize())
 app.use(passport.session())
-app.use(express.json());
+app.use( bodyparser.json() )
+app.use(bodyparser.urlencoded({
+  extended: true
+})); 
 passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 
@@ -35,7 +40,8 @@ app.get('/', (req, res) => {
   res.send("Hi!")
 })
 
-app.use(UserRoutes.router);
+app.use('/api/users/v1/', UserRoutes.router);
+app.use('/api/data/v1/', DataRoutes.router);
 
 app.listen(process.env.PORT, () => {
 	console.log(`API app listening at http://localhost:${process.env.PORT}`)
