@@ -1,15 +1,14 @@
 const express = require('express')
 const app = express()
-const mongoose = require('mongoose')
 const passport = require('passport')
 require('dotenv').config()
 const UserRoutes = require('./route/user')
-const router = express.Router();
-const aws = require('./awshelper.js');
-
+const DataUploadRoutes = require('./route/dataUpload')
+const db = require("./db");
 var bodyParser = require('body-parser');
 
-
+// Configure body parser to expect images and moisture
+// data from the ESP32
 var options = {
   inflate: true,
   limit: '100kb',
@@ -17,22 +16,19 @@ var options = {
 };
 app.use(bodyParser.raw(options));
 
+// Configure User model for use with Passport
 const User = require('./models/user');
-mongoose.connect(process.env.MONGO, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
-const connection = mongoose.connection
-connection.once('open', () => {
-	console.log("MongoDB connected.")
-});
-
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(express.json());
 passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 
+// Configure strategy for Passport -- local for rolling our own
 const LocalStrategy = require('passport-local').Strategy;
 passport.use(new LocalStrategy(User.authenticate()));
 
+// CORS configuration to allow access from React app
 app.use(function(req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
@@ -40,31 +36,16 @@ app.use(function(req, res, next) {
 	next();
 });
 
+// Test endpoint, pls ignore.
 app.get('/', (req, res) => {
   //res.send(testObj)
   res.send("Hi!")
 })
 
-app.post("/uploadTest", (req, res) => {
-	console.log(req.headers);
-	console.log(req.body);
-	res.send("Thanks!");
-})
-
-app.post('/api/auth/create', function(req, res) {
-	console.log(req.body)
-	Users=new User({email: req.body.email, username : req.body.username}); 
-	User.register(Users, req.body.password, function(err, user) { 
-		if (err) {
-			res.json({success:false, message:"Your account could not be saved. Error: ", err}) 
-		}else{
-			res.json({success: true, message: "Your account has been saved"}) 
-		}
-	});
-});
-
 //let key = aws.uploadFile("./test.jpg", "testing").then((response) => aws.signUrl(response)).then((response) => console.log(response))
-app.use(UserRoutes.router);
+app.use("/api/user/v1", UserRoutes.router);
+app.use("/api/dataUpload/v1", DataUploadRoutes.router);
+//app.use("/api/dataAccess/v1", )
 
 app.listen(process.env.PORT, () => {
 	console.log(`API app listening at http://localhost:${process.env.PORT}`)
