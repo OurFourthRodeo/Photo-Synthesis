@@ -6,6 +6,15 @@ require('dotenv').config()
 const User = require('./models/user');
 const router = express.Router();
 const aws = require('./awshelper.js');
+var bodyParser = require('body-parser');
+
+
+var options = {
+  inflate: true,
+  limit: '100kb',
+  type: 'application/octet-stream'
+};
+app.use(bodyParser.raw(options));
 
 mongoose.connect(process.env.MONGO, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
 const connection = mongoose.connection
@@ -34,6 +43,12 @@ app.get('/', (req, res) => {
   res.send("Hi!")
 })
 
+app.post("/uploadTest", (req, res) => {
+	console.log(req.headers);
+	console.log(req.body);
+	res.send("Thanks!");
+})
+
 app.post('/api/auth/create', function(req, res) {
 	console.log(req.body)
 	Users=new User({email: req.body.email, username : req.body.username}); 
@@ -46,7 +61,7 @@ app.post('/api/auth/create', function(req, res) {
 	});
 });
 
-let key = aws.uploadFile("./test.jpg", "testing").then((response) => aws.signUrl(response)).then((response) => console.log(response))
+//let key = aws.uploadFile("./test.jpg", "testing").then((response) => aws.signUrl(response)).then((response) => console.log(response))
 
 app.listen(process.env.PORT, () => {
 	console.log(`Example app listening at http://localhost:${process.env.PORT}`)
