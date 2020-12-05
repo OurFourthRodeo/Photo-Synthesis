@@ -3,9 +3,10 @@ const app = express()
 const mongoose = require('mongoose')
 const passport = require('passport')
 require('dotenv').config()
-const User = require('./models/user');
+const UserRoutes = require('./route/user')
 const router = express.Router();
 const aws = require('./awshelper.js');
+
 var bodyParser = require('body-parser');
 
 
@@ -16,6 +17,7 @@ var options = {
 };
 app.use(bodyParser.raw(options));
 
+const User = require('./models/user');
 mongoose.connect(process.env.MONGO, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
 const connection = mongoose.connection
 connection.once('open', () => {
@@ -62,7 +64,8 @@ app.post('/api/auth/create', function(req, res) {
 });
 
 //let key = aws.uploadFile("./test.jpg", "testing").then((response) => aws.signUrl(response)).then((response) => console.log(response))
+app.use(UserRoutes.router);
 
 app.listen(process.env.PORT, () => {
-	console.log(`Example app listening at http://localhost:${process.env.PORT}`)
+	console.log(`API app listening at http://localhost:${process.env.PORT}`)
 })
