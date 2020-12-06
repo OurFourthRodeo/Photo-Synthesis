@@ -29,14 +29,11 @@ app.use(expressSession({
 	saveUninitialized: false,
 	cookie: { sameSite: 'strict' },
 }));
-app.use(passport.initialize())
-app.use(passport.session())
-app.use( bodyparser.json() )
-app.use(bodyparser.urlencoded({
-  extended: true
-})); 
-passport.serializeUser(User.serializeUser())
-passport.deserializeUser(User.deserializeUser())
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(express.json());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 // Configure strategy for Passport -- local for rolling our own
 const LocalStrategy = require('passport-local').Strategy;
@@ -54,7 +51,7 @@ app.use(function(req, res, next) {
 app.get('/', (req, res) => {
   //res.send(testObj)
   res.send("Hi!")
-})
+});
 
 //let key = aws.uploadFile("./test.jpg", "testing").then((response) => aws.signUrl(response)).then((response) => console.log(response))
 app.use("/api/user/v1", UserRoutes.router);
@@ -63,4 +60,4 @@ app.use("/api/plantManagement/v1", PlantManagementRoutes.router);
 
 app.listen(process.env.PORT, () => {
 	console.log(`API app listening at http://localhost:${process.env.PORT}`)
-})
+});
