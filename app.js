@@ -1,11 +1,15 @@
-const express = require('express')
-const app = express()
-const passport = require('passport')
-require('dotenv').config()
-const UserRoutes = require('./route/user')
-const DataUploadRoutes = require('./route/dataUpload')
-const db = require("./db");
+const express = require('express');
+const app = express();
+const passport = require('passport');
 var bodyParser = require('body-parser');
+var expressSession = require('express-session');
+var MongoStore = require('connect-mongo')(expressSession);
+require('dotenv').config();
+
+const db = require("./db").connection;
+const UserRoutes = require('./route/user');
+const DataUploadRoutes = require('./route/dataUpload');
+const PlantManagementRoutes = require('./route/plantManagement');
 
 // Configure body parser to expect images and moisture
 // data from the ESP32
@@ -18,6 +22,13 @@ app.use(bodyParser.raw(options));
 
 // Configure User model for use with Passport
 const User = require('./models/user');
+app.use(expressSession({
+	store: new MongoStore({ mongooseConnection: db }),
+	secret: process.env.SESSIONSECRET,
+	resave: false,
+	saveUninitialized: false,
+	cookie: { sameSite: 'strict' },
+}));
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(express.json());
@@ -45,7 +56,7 @@ app.get('/', (req, res) => {
 //let key = aws.uploadFile("./test.jpg", "testing").then((response) => aws.signUrl(response)).then((response) => console.log(response))
 app.use("/api/user/v1", UserRoutes.router);
 app.use("/api/dataUpload/v1", DataUploadRoutes.router);
-//app.use("/api/dataAccess/v1", )
+app.use("/api/plantManagement/v1", PlantManagementRoutes.router);
 
 app.listen(process.env.PORT, () => {
 	console.log(`API app listening at http://localhost:${process.env.PORT}`)

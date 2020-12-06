@@ -10,5 +10,6 @@ connection.once('open', () => {
 
 
 module.exports = {
-	mongoose,
+    mongoose,
+    connection,
 }

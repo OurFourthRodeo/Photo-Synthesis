@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 
 
 var PlantSchema = new Schema({ 
-    mac: String,
+    _id: String, // The MAC address, guaranteed to be unique.
     imageURLs: [{ url: String, datetime: Date }],
     moistureReadings: [{ moisture: Number, datetime: {type: Date, default: Date.now} }],
     owner: String,
