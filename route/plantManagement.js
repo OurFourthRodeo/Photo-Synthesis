@@ -1,22 +1,64 @@
 const express = require('express'); 
 const router = express.Router();
 const Plant = require('../models/plant')
+const User = require('../models/user')
+const aws = require('../awshelper');
 
-// add plant to an account/init plant
-router.post("/addToAccount", (req, res) => {
-
-})
+//let key = aws.uploadFile("./test.jpg", "testing").then((response) => aws.signUrl(response)).then((response) => console.log(response))
 
 // get plant's most recent photo
+// (sign it)
+router.get("/photo", (req, res) =>{
+    if(req.isAuthenticated()){
+		Plant.findOne({"id": req.query.id}).exec().then( (doc, err) =>{
+			if(err){
+				res.send({ "error": "Yikes."});
+            }
+            images = doc.imageURLs;
+            if(!images){
+                res.send({"error": "No images yet."});
+            }
+            images.sort( (a, b) => {
+                return new Date(b.datetime) - new Date(a.datetime);
+            });
+			res.send();
+		})
+	}
+	else{
+		res.send({ "error": "Not signed in" });
+	}
+})
 
 // get plant's most recent x number of photos, if they exist
+// (sign them)
+router.get("/photo/:n", (req, res) =>{
+    
+})
 
 // get plant's most recent moisture reading
+router.get("/moisture", (req, res) =>{
+    
+})
 
 // get plant's most recent x moisture readings
+router.get("/moisture/:n", (req, res) =>{
+    
+})
 
 // get plant's name
-
+router.get("/name", (req, res) => {
+	if(req.isAuthenticated()){
+		User.findOne({username: req.user.username}).exec().then( (doc, err) =>{
+			if(err){
+				res.send({ "error": "Yikes."});
+			}
+			res.send({"name": doc.plants.find(p => p.mac === req.query.id).name});
+		})
+	}
+	else{
+		res.send({ "error": "Not signed in" });
+	}
+})
 
 module.exports = {
     router,
