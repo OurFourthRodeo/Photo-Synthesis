@@ -10,7 +10,7 @@ const aws = require('../awshelper');
 // (sign it)
 router.get("/photo", (req, res) =>{
     if(req.isAuthenticated()){
-		Plant.findOne({"id": req.query.id}).exec().then( (doc, err) =>{
+		Plant.findOne({"_id": req.query.id}).exec().then( (doc, err) =>{
 			if(err){
 				res.send({ "error": "Yikes."});
             }
@@ -21,7 +21,7 @@ router.get("/photo", (req, res) =>{
             images.sort( (a, b) => {
                 return new Date(b.datetime) - new Date(a.datetime);
             });
-			res.send();
+            res.send({"url": aws.signUrl(images[0].url)});
 		})
 	}
 	else{
