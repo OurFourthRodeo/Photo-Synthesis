@@ -5,6 +5,7 @@ const s3 = new aws.S3({
 	accessKeyId: process.env.AWS_ACCESS_KEY_ID,
 	secretAccessKey: process.env.AWS_SECRET,
 	signatureVersion: 'v4',
+	region: process.env.AWS_REGION,
 });
 
 const uploadFile = (filename, serial) => {

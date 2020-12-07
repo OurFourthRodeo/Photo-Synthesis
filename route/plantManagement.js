@@ -14,10 +14,11 @@ router.get("/photo", (req, res) =>{
 			if(err){
 				res.send({ "error": "Yikes."});
             }
-            images = doc.imageURLs;
-            if(!images){
-                res.send({"error": "No images yet."});
-            }
+            if(!doc){
+				res.send({"error": "No images yet."});
+				return;
+			}
+			images = doc.imageURLs;
             images.sort( (a, b) => {
                 return new Date(b.datetime) - new Date(a.datetime);
             });
