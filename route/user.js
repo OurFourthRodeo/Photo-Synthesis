@@ -11,32 +11,32 @@ router.post('/create', function(req, res) {
 	Users=new User({email: req.body.email, username : req.body.username}); 
 	User.register(Users, req.body.password, function(err, user) { 
 		if (err) {
-			res.json({success:false, message:"Your account could not be saved. Error: ", err}) 
+			res.send({success:false, message:"Your account could not be saved. Error: ", err}) 
 		}else{
-			res.json({success: true, message: "Your account has been saved"}) 
+			res.send({success: true, message: "Your account has been saved"}) 
 		}
 	});
 });
 
 // sign in
 router.post("/login", passport.authenticate('local'), (req, res) => {
-	res.send('{ "success": true }');
+	res.send({ "success": true });
 	console.log(req.isAuthenticated());
 })
 
 // sign out
 router.post("/logout", (req, res) => {
 	req.logout();
-	res.send('{ "success": true }');
+	res.send({ "success": true });
 })
 
 // get name
 router.get("/username", (req, res) =>{
 	if(req.isAuthenticated()){
-		res.send(`{ "name": "${req.user.username}" }`);
+		res.send({ "name": req.user.username });
 	}
 	else{
-		res.send('{ "error": "Not signed in" }');
+		res.send({ "error": "Not signed in" });
 	}
 })
 
@@ -45,8 +45,7 @@ router.get("/plants", (req, res) => {
 	if(req.isAuthenticated()){
 		User.findOne({username: req.user.username}).exec().then( (doc, err) =>{
 			if(err){
-				errRes = { "error": "Yikes."}
-				res.send(errRes);
+				res.send({ "error": "Yikes."});
 			}
 			// list plants by name and MAC
 			if (req.query.all == 1){
@@ -59,8 +58,7 @@ router.get("/plants", (req, res) => {
 		})
 	}
 	else{
-		errRes = { "error": "Not signed in" }
-		res.send(errRes);
+		res.send({ "error": "Not signed in" });
 	}
 })
 
@@ -105,13 +103,11 @@ router.post("/deletePlant", (req, res) => {
 			})
 		}
 		else{
-			errRes = { "error": "No plant provided" }
-			res.send(errRes);
+			res.send({ "error": "No plant provided" });
 		}
 	}
 	else{
-		errRes = { "error": "Not signed in" }
-		res.send(errRes);
+		res.send({ "error": "Not signed in" });
 	}
 })
 
@@ -132,13 +128,11 @@ router.post("/registerDevice", (req, res) => {
 				})
 		}
 		else{
-			errRes = { "error": "No device specified." }
-			res.send(errRes);
+			res.send({ "error": "No device specified." });
 		}
 	}
 	else{
-		errRes = { "error": "Not signed in" }
-		res.send(errRes);
+		res.send({ "error": "Not signed in" });
 	}
 })
 
@@ -152,13 +146,11 @@ router.post("/unregisterDevice", (req, res) => {
 				})
 		}
 		else{
-			errRes = { "error": "No device specified." }
-			res.send(errRes);
+			res.send({ "error": "No device specified." });
 		}
 	}
 	else{
-		errRes = { "error": "Not signed in" }
-		res.send(errRes);
+		res.send({ "error": "Not signed in" });
 	}
 })
 
