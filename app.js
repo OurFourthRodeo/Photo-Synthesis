@@ -15,7 +15,7 @@ const PlantManagementRoutes = require('./route/plantManagement');
 // data from the ESP32
 var options = {
   inflate: true,
-  limit: '100kb',
+  limit: '256kb',
   type: 'application/octet-stream'
 };
 app.use(bodyParser.raw(options));
