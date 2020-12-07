@@ -87,6 +87,9 @@ router.post("/addPlant", (req, res) => {
 				})
 		}
 	}
+	else{
+		res.send({"error": "Not signed in"})
+	}
 })
 
 // delete plant

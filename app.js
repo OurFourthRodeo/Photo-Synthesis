@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const passport = require('passport');
+const cors = require('cors');
 var bodyParser = require('body-parser');
 var expressSession = require('express-session');
 var MongoStore = require('connect-mongo')(expressSession);
@@ -13,12 +14,20 @@ const PlantManagementRoutes = require('./route/plantManagement');
 
 // Configure body parser to expect images and moisture
 // data from the ESP32
-var options = {
+var parserOptions = {
   inflate: true,
   limit: '256kb',
   type: 'application/octet-stream'
 };
-app.use(bodyParser.raw(options));
+app.use(bodyParser.raw(parserOptions));
+
+// Setup CORS
+app.use(
+	cors({
+	  credentials: true,
+	  origin: process.env.ORIGIN
+	}),
+  );
 
 // Configure User model for use with Passport
 const User = require('./models/user');
