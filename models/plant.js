@@ -9,6 +9,7 @@ var PlantSchema = new Schema({
     moistureReadings: [{ moisture: Number, datetime: {type: Date, default: Date.now() } }],
     owner: String,
     lastRotate: Date,
+    lastWaterNotify: Date,
 }); 
 
 // export userschema 
