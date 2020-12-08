@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const passport = require('passport');
-const cors = require('cors');
+//const cors = require('cors');
 var bodyParser = require('body-parser');
 var expressSession = require('express-session');
 var MongoStore = require('connect-mongo')(expressSession);
@@ -22,12 +22,17 @@ var parserOptions = {
 app.use(bodyParser.raw(parserOptions));
 
 // Setup CORS
-app.use(
-	cors({
-	  credentials: true,
-	  origin: process.env.ORIGIN
-	}),
-  );
+
+/*
+console.log(process.env.ORIGIN);
+app.use(function (req, res, next) {
+	res.setHeader('Access-Control-Allow-Origin', process.env.ORIGIN);
+	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+	res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+	res.setHeader('Access-Control-Allow-Credentials', true);
+	next();
+});
+*/
 
 // Configure User model for use with Passport
 const User = require('./models/user');

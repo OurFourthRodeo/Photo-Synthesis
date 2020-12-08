@@ -13,6 +13,7 @@ router.post('/create', function(req, res) {
 		if (err) {
 			res.send({success:false, message:"Your account could not be saved. Error: ", err}) 
 		}else{
+			console.log("Created account!");
 			res.send({success: true, message: "Your account has been saved"}) 
 		}
 	});
@@ -20,6 +21,7 @@ router.post('/create', function(req, res) {
 
 // sign in
 router.post("/login", passport.authenticate('local'), (req, res) => {
+	console.log("Login request received and through passport");
 	res.send({ "success": true });
 	console.log(req.isAuthenticated());
 })
@@ -85,6 +87,11 @@ router.post("/addPlant", (req, res) => {
 						res.send(empty);
 					}
 				})
+		}
+		else{
+			console.log(`Name: ${req.body.name}, MAC: ${req.body.mac}`);
+			console.log(req.body)
+			res.send({"error": "Details missing"});
 		}
 	}
 	else{
