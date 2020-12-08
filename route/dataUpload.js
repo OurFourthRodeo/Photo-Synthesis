@@ -30,17 +30,24 @@ router.post("/uploadImage", (req, res) => {
         })
     }
     else{
-        res.send({"error": "Invalid request."})
+        res.send({"error": "Invalid request."});
     }
 })
 
 // process moisture data sent by plant
 router.post("uploadMoisture/", (req, res) => {
+    // Should be received as octet stream, need to parse out first 6 bytes
     if(req.body.length > 6){
         mac = req.body.toString("hex").substring(0,12)
+        moisture = parseInt(Number(req.body.toString("hex").substring(12,20)), 10);
+        Plant.updateOne({_id: mac}, {$push: {"moistureReadings": {"moisture": moisture, "datetime": new Date()}}}, {upsert: true})
+            .exec().then((doc) =>{
+                console.log(doc);
+                res.send({"success": "Saved data."})
+            });
     }
     else{
-        res.send({"error": "Invalid request."})
+        res.send({"error": "Invalid request."});
     }
 })
 
