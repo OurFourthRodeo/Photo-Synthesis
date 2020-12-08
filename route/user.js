@@ -7,7 +7,7 @@ const passport = require('passport');
 
 
 router.post('/create', function(req, res) {
-	console.log(req.body)
+	//console.log(req.body)
 	Users=new User({email: req.body.email, username : req.body.username}); 
 	User.register(Users, req.body.password, function(err, user) { 
 		if (err) {
@@ -21,7 +21,7 @@ router.post('/create', function(req, res) {
 
 // sign in
 router.post("/login", passport.authenticate('local'), (req, res) => {
-	console.log("Login request received and through passport");
+	//console.log("Login request received and through passport");
 	res.send({ "success": true });
 	console.log(req.isAuthenticated());
 })
@@ -123,6 +123,7 @@ router.post("/deletePlant", (req, res) => {
 
 // add device to notification
 router.post("/registerDevice", (req, res) => {
+	console.log("Adding device:", req.body.device, req.isAuthenticated());
 	if(req.isAuthenticated()){
 		if(req.body.device){
 			condition = {"username": req.user.username, 'devices': {$ne: req.body.device}}

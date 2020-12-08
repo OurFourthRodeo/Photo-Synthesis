@@ -65,8 +65,9 @@ router.get("/moisture", (req, res) =>{
             moisture.sort( (a, b) => {
                 return new Date(b.datetime) - new Date(a.datetime);
             });
-			if(req.params.number){
-				number = req.params.number > moisture.length ? moisture.length : req.params.number;
+			if(req.query.number){
+				console.log("Fetching", req.query.number, "values");
+				number = req.query.number > moisture.length ? moisture.length : req.query.number;
 				res.send(moisture.slice(0,number));
 			}
 			else{
