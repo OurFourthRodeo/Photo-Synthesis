@@ -65,7 +65,14 @@ router.get("/moisture", (req, res) =>{
             images.sort( (a, b) => {
                 return new Date(b.datetime) - new Date(a.datetime);
             });
-            res.send({"moisture": moisture[0]});
+			if(req.params.number){
+				number = req.params.number > moisture.length ? moisture.length : req.params.number;
+				res.send(moisture.slice(0,number));
+			}
+			else{
+				res.send(moisture[0]);
+			}
+            
 		})
 	}
 	else{
