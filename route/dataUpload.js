@@ -6,29 +6,37 @@ const { platform } = require('os');
 const Plant = require("../models/plant");
 const User = require("../models/user");
 const { Expo } = require('expo-server-sdk')
+const { PythonShell } = require('python-shell');
 
 let expo = new Expo({ accessToken: process.env.EXPO_ACCESS_TOKEN });
 
 // process image sent by plant
 router.post("/uploadImage", (req, res) => {
     // Should be received as octet stream, need to parse out first 6 bytes
-    if(req.body.length > 6){
-        mac = req.body.toString("hex").substring(0,12)
-        title = "./upload/"+mac+"_"+(new Date().getTime())+".jpg";
-        fs.writeFile(title, req.body.slice(6, req.body.length), "binary", err => {
+        if(req.body.length > 6){
+            mac = req.body.toString("hex").substring(0,12)
+            title = "./upload/"+mac+"_"+(new Date().getTime())+".jpg";
+            fs.writeFile(title, req.body.slice(6, req.body.length), "binary", err => {
             if(err){
                 console.log("Could not save file.")
                 res.send({"error": "Could not save image"})
             }
             else{
                 console.log("Success!");
-                res.send({"success": "Saved image."})
+                 res.send({"success": "Saved image."});
+                // Process image
+                options = {
+                    mode: 'json',
+                    args: [title, "parsed"+title],
+                }
+                PythonShell.run('predictGrowth.py', options, (err, results) => {
                 aws.uploadFile(title, mac).then((response) => {
                     Plant.findOneAndUpdate({_id: mac}, {$push: {"imageURLs": {"url": response.key, "datetime": new Date()}}}, {upsert: true, new: true})
                         .exec().then((doc) =>{
                             console.log(doc);
                             fs.unlinkSync(title);
                         });
+                    })
                 })
             }
         })
@@ -37,6 +45,7 @@ router.post("/uploadImage", (req, res) => {
         res.send({"error": "Invalid request."});
     }
 })
+
 
 // process moisture data sent by plant
 router.post("/uploadMoisture", (req, res) => {
