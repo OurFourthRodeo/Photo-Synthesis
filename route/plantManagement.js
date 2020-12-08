@@ -13,9 +13,13 @@ router.get("/photo", (req, res) =>{
 		Plant.findOne({"_id": req.query.id}).exec().then( (doc, err) =>{
 			if(err){
 				res.send({ "error": "Yikes."});
-            }
-            if(!doc){
-				res.send({"error": "No images yet."});
+			}
+			if(!doc){
+				res.send({"error": "No document"});
+				return;
+			}
+			if(doc.owner != req.user.username){
+				res.send({"error": "Plant does not belong to requester"});
 				return;
 			}
 			images = doc.imageURLs;
