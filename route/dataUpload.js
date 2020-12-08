@@ -59,7 +59,7 @@ router.post("/uploadMoisture", (req, res) => {
                         diffDays = Math.floor(diffMs / 86400000);
                         console.log("Time since last notification:", diffMs, diffDays);
                         if(diffDays < 7){
-                            sendMoistureNotif = false;
+                            sendRotateNotif = false;
                         }
                     }
                     else{
