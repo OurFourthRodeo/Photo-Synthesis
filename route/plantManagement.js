@@ -14,14 +14,19 @@ router.get("/photo", (req, res) =>{
 			if(err){
 				res.send({ "error": "Yikes."});
 			}
-			if(!doc && !doc.imageURLs && !doc.owner){
+			if(!doc){
 				res.send({"error": "No document"});
+				return;
+			}
+			if(!doc.imageURLs || !doc.owner){
+				res.send({"error": "Missing fields, please wait"})
 				return;
 			}
 			if(doc.owner != req.user.username){
 				res.send({"error": "Plant does not belong to requester"});
 				return;
 			}
+			
 			images = doc.imageURLs;
             images.sort( (a, b) => {
                 return new Date(b.datetime) - new Date(a.datetime);
@@ -44,8 +49,12 @@ router.get("/moisture", (req, res) =>{
 			if(err){
 				res.send({ "error": "Yikes."});
 			}
-			if(!doc && !doc.moistureReadings && !doc.owner){
+			if(!doc){
 				res.send({"error": "No document"});
+				return;
+			}
+			if(!doc.moistureReadings || !doc.owner){
+				res.send({"error": "Missing fields, please wait"})
 				return;
 			}
 			if(doc.owner != req.user.username){
