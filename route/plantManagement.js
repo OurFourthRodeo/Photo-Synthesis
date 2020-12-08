@@ -62,7 +62,7 @@ router.get("/moisture", (req, res) =>{
 				return;
 			}
 			moisture = doc.moistureReadings;
-            images.sort( (a, b) => {
+            moisture.sort( (a, b) => {
                 return new Date(b.datetime) - new Date(a.datetime);
             });
 			if(req.params.number){
