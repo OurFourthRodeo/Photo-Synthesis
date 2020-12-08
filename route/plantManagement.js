@@ -14,7 +14,7 @@ router.get("/photo", (req, res) =>{
 			if(err){
 				res.send({ "error": "Yikes."});
 			}
-			if(!doc){
+			if(!doc && !doc.imageURLs && !doc.owner){
 				res.send({"error": "No document"});
 				return;
 			}
@@ -36,19 +36,35 @@ router.get("/photo", (req, res) =>{
 
 // get plant's most recent x number of photos, if they exist
 // (sign them)
-router.get("/photo/:n", (req, res) =>{
-    
-})
 
 // get plant's most recent moisture reading
 router.get("/moisture", (req, res) =>{
-    
+    if(req.isAuthenticated()){
+		Plant.findOne({"_id": req.query.id}).exec().then( (doc, err) =>{
+			if(err){
+				res.send({ "error": "Yikes."});
+			}
+			if(!doc && !doc.moistureReadings && !doc.owner){
+				res.send({"error": "No document"});
+				return;
+			}
+			if(doc.owner != req.user.username){
+				res.send({"error": "Plant does not belong to requester"});
+				return;
+			}
+			moisture = doc.moistureReadings;
+            images.sort( (a, b) => {
+                return new Date(b.datetime) - new Date(a.datetime);
+            });
+            res.send({"moisture": moisture[0]});
+		})
+	}
+	else{
+		res.send({ "error": "Not signed in" });
+	}
 })
 
 // get plant's most recent x moisture readings
-router.get("/moisture/:n", (req, res) =>{
-    
-})
 
 // get plant's name
 router.get("/name", (req, res) => {
