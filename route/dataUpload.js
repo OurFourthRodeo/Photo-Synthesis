@@ -51,6 +51,48 @@ router.post("/uploadMoisture", (req, res) => {
 			User.findOne({"username": doc.owner}).exec().then((userDoc) => {
 				if(userDoc && userDoc.devices){
                     // prepare notifications
+                    sendRotateNotif = true;
+                    if(doc.lastRotate){
+                        lastNotif = new Date(doc.lastRotate);
+                        now = new Date();
+                        diffMs = Math.abs(lastNotif - now);
+                        diffDays = Math.floor(diffMs / 86400000);
+                        console.log("Time since last notification:", diffMs, diffDays);
+                        if(diffDays < 7){
+                            sendMoistureNotif = false;
+                        }
+                    }
+                    else{
+                        Plant.updateOne({_id: mac}, {lastRotate: new Date()}).exec();
+                        sendRotateNotif = false;
+                    }
+                    if(sendRotateNotif){
+                        let messages = [];
+                        userDoc.devices.forEach((element) =>{
+                            // console.log(element)
+                            messages.push({
+                                to: element,
+                                sound: 'default',
+                                title: "Robotany",
+                                body: "Don't forget to rotate your plant!",
+                                data: {withSome: 'data'},
+                            });
+                        });
+                        let chunks = expo.chunkPushNotifications(messages);
+                        let tickets = [];
+                        (async () => {
+                            for (let chunk of chunks) {
+                                try {
+                                    let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+                                    console.log(ticketChunk);
+                                    tickets.push(...ticketChunk);
+                                } catch (error) {
+                                    console.error(error);
+                                }
+                            }
+                        })();
+                        Plant.updateOne({_id: mac}, {lastRotate: new Date()}).exec();
+                    }
                     if(moisture < 1024){
                         sendMoistureNotif = true;
                         if(doc.lastWaterNotify){
