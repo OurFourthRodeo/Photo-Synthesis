@@ -15,8 +15,9 @@ router.post("/uploadImage", (req, res) => {
     // Should be received as octet stream, need to parse out first 6 bytes
         if(req.body.length > 6){
             mac = req.body.toString("hex").substring(0,12)
-            title = "./upload/"+mac+"_"+(new Date().getTime())+".jpg";
-            fs.writeFile(title, req.body.slice(6, req.body.length), "binary", err => {
+	    location = "./upload/"
+            title = mac+"_"+(new Date().getTime())+".jpg";
+            fs.writeFile(location+title, req.body.slice(6, req.body.length), "binary", err => {
             if(err){
                 console.log("Could not save file.")
                 res.send({"error": "Could not save image"})
@@ -26,17 +27,24 @@ router.post("/uploadImage", (req, res) => {
                  res.send({"success": "Saved image."});
                 // Process image
                 options = {
-                    mode: 'json',
-                    args: [title, "parsed"+title],
+                    mode: 'text',
+		    scriptPath: './computervision/',
+                    args: [location+title],
                 }
                 PythonShell.run('predictGrowth.py', options, (err, results) => {
-                aws.uploadFile(title, mac).then((response) => {
-                    Plant.findOneAndUpdate({_id: mac}, {$push: {"imageURLs": {"url": response.key, "datetime": new Date()}}}, {upsert: true, new: true})
-                        .exec().then((doc) =>{
-                            console.log(doc);
-                            fs.unlinkSync(title);
-                        });
-                    })
+			if(err){
+				console.log("Could not upload.");
+				fs.unlinkSync(location+title);
+			}
+			jsonRes = JSON.parse(results[0].split("'").join(`"`));
+			console.log(jsonRes);
+			aws.uploadFile(location+title, mac).then((response) => {
+                        	Plant.findOneAndUpdate({_id: mac}, {$push: {"imageURLs": {"url": response.key, "datetime": new Date()}}}, {upsert: true, new: true})
+                            		.exec().then((doc) =>{
+                         		//console.log(doc);
+                        		 fs.unlinkSync(location+title);
+                     		});
+                	})
                 })
             }
         })
