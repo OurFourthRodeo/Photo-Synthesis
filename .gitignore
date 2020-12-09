@@ -104,3 +104,13 @@ dist
 .tern-port
 
 upload*
+
+*.jpg
+
+*.png
+
+model.yml
+
+computervision/cv/
+
+*.swp
