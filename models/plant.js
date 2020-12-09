@@ -10,6 +10,8 @@ var PlantSchema = new Schema({
     owner: String,
     lastRotate: Date,
     lastWaterNotify: Date,
+    readyForHarvest: Boolean,
+    readyForElectrodes: Boolean,
 }); 
 
 // export userschema 

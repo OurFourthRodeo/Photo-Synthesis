@@ -24,27 +24,32 @@ router.post("/uploadImage", (req, res) => {
             }
             else{
                 console.log("Success!");
-                 res.send({"success": "Saved image."});
-                // Process image
+                res.send({"success": "Saved image."});
+                // Process 
                 options = {
                     mode: 'text',
-		    scriptPath: './computervision/',
-                    args: [location+title],
+                    scriptPath: './computervision/',
+                    args: [location+title, location+"processed-"+title],
                 }
-                PythonShell.run('predictGrowth.py', options, (err, results) => {
-			if(err){
-				console.log("Could not upload.");
-				fs.unlinkSync(location+title);
-			}
-			jsonRes = JSON.parse(results[0].split("'").join(`"`));
-			console.log(jsonRes);
-			aws.uploadFile(location+title, mac).then((response) => {
-                        	Plant.findOneAndUpdate({_id: mac}, {$push: {"imageURLs": {"url": response.key, "datetime": new Date()}}}, {upsert: true, new: true})
-                            		.exec().then((doc) =>{
-                         		//console.log(doc);
-                        		 fs.unlinkSync(location+title);
-                     		});
-                	})
+                PythonShell.run('imageProcessing.py', options, (err, results) => {
+                    options.args = [location+"processed-"+title]
+                    PythonShell.run('predictGrowth.py', options, (err, results) => {
+                        if(err){
+                            console.log("Could not upload.");
+                            fs.unlinkSync(location+title);
+                        }
+                        jsonRes = JSON.parse(results[0].split("'").join(`"`));
+                        console.log(jsonRes);
+                        Plant.updateOne({_id: mac}, {readyForHarvest: jsonRes.harvest != "NOK", readyForElectrodes: jsonRes.electrode != "NOK"}).exec();
+                        aws.uploadFile(location+"processed-"+title, mac).then((response) => {
+                            Plant.findOneAndUpdate({_id: mac}, {$push: {"imageURLs": {"url": response.key, "datetime": new Date()}}}, {upsert: true, new: true})
+                            .exec().then((doc) =>{
+                                //console.log(doc);
+                                fs.unlinkSync(location+title);
+                                fs.unlinkSync(location+"processed-"+title);
+                            });
+                        })
+                    })
                 })
             }
         })
