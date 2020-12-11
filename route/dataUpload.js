@@ -31,11 +31,15 @@ router.post("/uploadImage", (req, res) => {
                     scriptPath: './computervision/',
                     args: [location+title, location+"processed-"+title],
                 }
+		console.log(options.args)
                 PythonShell.run('imageProcessing.py', options, (err, results) => {
                     options.args = [location+"processed-"+title]
+		    if(err){
+                        console.log(err);
+		    }
                     PythonShell.run('predictGrowth.py', options, (err, results) => {
                         if(err){
-                            console.log("Could not upload.");
+                            console.log(err);
                             fs.unlinkSync(location+title);
                         }
                         jsonRes = JSON.parse(results[0].split("'").join(`"`));
